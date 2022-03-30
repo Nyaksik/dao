@@ -63,7 +63,7 @@ contract DAO is Ownable {
         return proposal;
     }
 
-    function deposite(uint256 _amount) external {
+    function deposit(uint256 _amount) external {
         IERC20(tokenDAO).transferFrom(msg.sender, address(this), _amount);
         Participant storage participant = participants[msg.sender];
         participant.depositAmount += _amount;
