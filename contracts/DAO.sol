@@ -57,6 +57,12 @@ contract DAO is Ownable {
         tokenDAO = _token;
     }
 
+    function getProposal(uint256 _id) external view returns (Proposal memory) {
+        if (_id <= 0 && _id > proposalId) revert NotFoundProposalId(_id);
+        Proposal memory proposal = proposals[_id];
+        return proposal;
+    }
+
     function deposite(uint256 _amount) external {
         IERC20(tokenDAO).transferFrom(msg.sender, address(this), _amount);
         Participant storage participant = participants[msg.sender];
