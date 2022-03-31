@@ -23,7 +23,7 @@ export default (): void => {
       recipient,
       calldata,
       descr,
-    ] = await this.instance.getProposal(proposalId);
+    ] = await this.instance.proposals(proposalId);
     const result = [
       +id,
       status,

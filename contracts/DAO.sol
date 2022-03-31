@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 error IncorrectAmount(uint256, uint256);
 error ProposalInProgress();
 error ProposalIsOver();
-error NotFoundProposalId(uint256);
 error AlreadyVoted();
 
 contract DAO is Ownable {
@@ -50,17 +49,11 @@ contract DAO is Ownable {
     uint32 public constant MINIMUN_QUORUM = 60;
     uint32 public constant REQUISITE_MAJORITY = 51;
 
-    mapping(uint256 => Proposal) private proposals;
-    mapping(address => Participant) private participants;
+    mapping(uint256 => Proposal) public proposals;
+    mapping(address => Participant) public participants;
 
     constructor(address _token) {
         tokenDAO = _token;
-    }
-
-    function getProposal(uint256 _id) external view returns (Proposal memory) {
-        if (_id <= 0 && _id > proposalId) revert NotFoundProposalId(_id);
-        Proposal memory proposal = proposals[_id];
-        return proposal;
     }
 
     function deposit(uint256 _amount) external {
@@ -105,9 +98,8 @@ contract DAO is Ownable {
         uint256 _amount,
         Decision _decision
     ) external {
-        if (_id <= 0 && _id > proposalId) revert NotFoundProposalId(_id);
         Proposal storage proposal = proposals[_id];
-        if (proposal.endTime >= block.timestamp) revert ProposalIsOver();
+        if (block.timestamp >= proposal.endTime) revert ProposalIsOver();
         Participant storage participant = participants[msg.sender];
         if (_amount > participant.depositAmount)
             revert IncorrectAmount(_amount, participant.depositAmount);
@@ -121,9 +113,8 @@ contract DAO is Ownable {
     }
 
     function finishProposal(uint256 _id) external {
-        if (_id <= 0 && _id > proposalId) revert NotFoundProposalId(_id);
         Proposal storage proposal = proposals[_id];
-        if (proposal.endTime < block.timestamp) revert ProposalInProgress();
+        if (block.timestamp < proposal.endTime) revert ProposalInProgress();
         if (proposal.status != ProposalStatus.PROGRESS) revert ProposalIsOver();
         if (
             _isMinimunQuorum(proposal.votes, totalProvided) &&
@@ -158,7 +149,7 @@ contract DAO is Ownable {
         pure
         returns (bool)
     {
-        uint256 _percent = (_votesCount / _votesFor) * 100;
+        uint256 _percent = (_votesFor / _votesCount) * 100;
         if (_percent >= REQUISITE_MAJORITY) {
             return true;
         } else {

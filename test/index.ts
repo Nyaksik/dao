@@ -2,6 +2,8 @@ import { artifacts, ethers, waffle } from "hardhat";
 import { Artifact } from "hardhat/types";
 import DAOAddProposal from "./DAOAddProposal";
 import DAOdeposit from "./DAOdeposit";
+import DAOFinish from "./DAOFinish";
+import DAOVote from "./DAOVote";
 import DAOwithdraw from "./DAOwithdraw";
 
 export default describe("DAO contract testing", async function () {
@@ -30,4 +32,6 @@ export default describe("DAO contract testing", async function () {
   DAOdeposit();
   DAOwithdraw();
   DAOAddProposal();
+  DAOVote();
+  DAOFinish();
 });
